@@ -1,2 +1,1 @@
-# asp.net
-Implementacion de git con asp.net
+# platzi-asp-net-core
