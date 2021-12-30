@@ -7,6 +7,8 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using platzi_asp_net_core.Models;
 
 namespace platzi_asp_net_core
 {
@@ -14,7 +16,26 @@ namespace platzi_asp_net_core
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+           // CreateWebHostBuilder(args).Build().Run();
+            var host =CreateWebHostBuilder(args).Build();
+            var scope = host.Services.CreateScope();
+            var servicios = scope.ServiceProvider;
+           
+            try
+            {
+                var context = servicios.GetRequiredService<EscuelaConexto>();
+                context.Database.EnsureCreated();
+            }
+            catch (Exception ex)
+            {
+                
+                  var logger = servicios.GetRequiredService<ILogger<Program>>();
+                logger.LogError(ex, "Ocurrio un error");
+                
+
+            }
+          
+            host.Run();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

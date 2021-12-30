@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using platzi_asp_net_core.Models;
 
 namespace platzi_asp_net_core
 {
@@ -33,6 +35,9 @@ namespace platzi_asp_net_core
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddDbContext<EscuelaConexto>(
+                optiops => optiops.UseInMemoryDatabase(databaseName:"TestDB")
+            );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
