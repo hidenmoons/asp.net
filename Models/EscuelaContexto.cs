@@ -4,17 +4,17 @@ using System.Linq;
 using System.Collections.Generic;
 namespace platzi_asp_net_core.Models
 {
-    public class EscuelaConexto:DbContext
+    public class EscuelaConexto : DbContext
     {
-        public DbSet<Escuela> Escuelas {get; set;}
-        public DbSet<Asignatura> Asignaturas {get; set;}
+        public DbSet<Escuela> Escuelas { get; set; }
+        public DbSet<Asignatura> Asignaturas { get; set; }
 
-        public DbSet<Alumno> Alumnos {get; set;}
-        public DbSet<Curso> Cursos {get; set;}
+        public DbSet<Alumno> Alumnos { get; set; }
+        public DbSet<Curso> Cursos { get; set; }
 
-        public DbSet<Evaluación> Evaluaciones {get; set;}
-        
-        public EscuelaConexto(DbContextOptions<EscuelaConexto> options): base(options)
+        public DbSet<Evaluación> Evaluaciones { get; set; }
+
+        public EscuelaConexto(DbContextOptions<EscuelaConexto> options) : base(options)
         {
 
         }
@@ -34,11 +34,14 @@ namespace platzi_asp_net_core.Models
             escuela.TipoEscuela = TiposEscuela.Secundaria;
 
             modelBuilder.Entity<Escuela>().HasData(escuela);
+            var cursos = CargarCursos(escuela);
+            var asignaturas =  CargarAsignaturas(cursos);
 
             modelBuilder.Entity<Asignatura>().HasData(
                            new Asignatura
                            {
                                Nombre = "Matemáticas",
+
                                Id = Guid.NewGuid().ToString()
                            },
                             new Asignatura
@@ -68,7 +71,80 @@ namespace platzi_asp_net_core.Models
                         .HasData(GenerarAlumnosAlAzar().ToArray());
         }
 
-        private List<Alumno> GenerarAlumnosAlAzar()
+        private static List<Asignatura> CargarAsignaturas(List<Curso> cursos)
+        {
+            var Listacompleta =  new List<Asignatura> ();
+            foreach (var curso in cursos)
+            {
+                List<Asignatura> asignaturas = new List<Asignatura>{
+                    new Asignatura
+                           {
+                               Nombre = "Matemáticas",
+                               CursoId = curso.Id,
+                               Id = Guid.NewGuid().ToString()
+                           },
+                           new Asignatura
+                           {
+                                 Nombre = "Español",
+                               CursoId = curso.Id,
+                               Id = Guid.NewGuid().ToString()
+                           },
+                           new Asignatura
+                           {
+                                   Nombre = "Geometria",
+                               CursoId = curso.Id,
+                               Id = Guid.NewGuid().ToString()
+                           },
+                           new Asignatura
+                           {
+                                   Nombre = "fisica",
+                               CursoId = curso.Id,
+                               Id = Guid.NewGuid().ToString()
+                           },
+                           new Asignatura
+                           {
+                                  Nombre = "programacion",
+                               CursoId = curso.Id,
+                               Id = Guid.NewGuid().ToString()
+                           },
+                };
+                Listacompleta.AddRange(asignaturas);
+                curso.Asignaturas = asignaturas;
+            }
+            return Listacompleta;
+        }
+
+        private static List<Curso> CargarCursos(Escuela escuela)
+        {
+            return new List<Curso>(){
+                new Curso(){
+                    Id = Guid.NewGuid().ToString(),
+                    EscuelaId = escuela.Id,
+                    Nombre="101",
+                    Jornada= TiposJornada.Mañana
+                },
+                     new Curso(){
+                    Id = Guid.NewGuid().ToString(),
+                    EscuelaId = escuela.Id,
+                    Nombre="430",
+                    Jornada= TiposJornada.Mañana
+                },
+                     new Curso(){
+                    Id = Guid.NewGuid().ToString(),
+                    EscuelaId = escuela.Id,
+                    Nombre="230",
+                    Jornada= TiposJornada.Mañana
+                },
+                     new Curso(){
+                    Id = Guid.NewGuid().ToString(),
+                    EscuelaId = escuela.Id,
+                    Nombre="503",
+                    Jornada= TiposJornada.Mañana
+                },
+            };
+        }
+
+        private List<Alumno> GenerarAlumnosAlAzar(Curso CURSO, int cantidad)
         {
             string[] nombre1 = { "Alba", "Felipa", "Eusebio", "Farid", "Donald", "Alvaro", "Nicolás" };
             string[] apellido1 = { "Ruiz", "Sarmiento", "Uribe", "Maduro", "Trump", "Toledo", "Herrera" };
@@ -79,13 +155,14 @@ namespace platzi_asp_net_core.Models
                                from a1 in apellido1
                                select new Alumno
                                {
+                                   CursoId = CURSO.Id,
                                    Nombre = $"{n1} {n2} {a1}",
                                    Id = Guid.NewGuid().ToString()
                                };
 
-            return listaAlumnos.OrderBy((al) => al.Id).ToList();
+            return listaAlumnos.OrderBy((al) => al.Id).Take(cantidad).ToList();
 
         }
-        
+
     }
 }
